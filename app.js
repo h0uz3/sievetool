@@ -7,18 +7,20 @@ const Vcard = require('vcard');
 
 const config = require('./config.js');
 const xhr = new dav.transport.Basic(
-    new dav.Credentials({
-      username: config.owncloud.username,
-      password: config.owncloud.password
-    })
-    );
+  new dav.Credentials({
+    username: config.owncloud.username,
+    password: config.owncloud.password
+  })
+);
 
-dav.createAccount({
+const connect = () => dav.createAccount({
   server: config.owncloud.server,
   xhr,
   accountType: 'carddav',
   loadObjects: true
-}).then(account => {
+});
+
+const extractAddresses = account => {
   const addresses = [];
 
   for (const entry of account.addressBooks[0].objects) {
@@ -34,9 +36,11 @@ dav.createAccount({
   }
 
   return addresses;
-}).then(addresses => {
+};
+
+const printAddresses = addresses => {
   console.log(addresses.join(','));
-}).catch(err => {
-  console.log(err);
-});
+};
+
+connect().then(extractAddresses).then(printAddresses).catch(console.log);
 
