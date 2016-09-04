@@ -2,6 +2,12 @@
 
 Sievetool is a utility that creates sieve rules to automatically move mails out of your INBOX when they arent sent from senders known to you. It does so by reading a list of mail addresses from your OwnCloud account and creating a move-rule into a given file.
 
+## Motivation
+
+Main main email address is the catchall address for more than 50 domains. Therefore it receives an imperial fuckton of spam on a daily basis because no matter how good your spam filter is, it's never good enough.
+
+Some mail clients support VIP-senders, but I switch between all kinds of mail programs all the time and wanted the server to handle this task.
+
 ## Requirements
 
 In short: You need OwnCloud, a mail server that supports sieve and NodeJS.
@@ -17,11 +23,9 @@ Go into the directory and run `npm install`.
 
 After installation, rename `config_template.js` to `config.js` and edit it according to your needs.
 
-## Motivation
+## Usage
 
-Main main email address is the catchall address for more than 50 domains. Therefore it receives an imperial fuckton of spam on a daily basis because no matter how good your spam filter is, it's never good enough.
-
-Some mail clients support VIP-senders, but I switch between all kinds of mail programs all the time and wanted the server to handle this task.
+Go to the installation directory and run `node app.js`. I suggest to use a cronjob that does so daily and recreates the sieve-file every night so new mails from new contacts will show up in your INBOX.
 
 ## License
 
