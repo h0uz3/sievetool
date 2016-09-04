@@ -1,11 +1,13 @@
-/* eslint-disable no-console, newline-per-chained-call, no-lonely-if */
+/* eslint-disable no-console, newline-per-chained-call, no-lonely-if, dot-location */
 
 'use strict';
 
 const dav = require('dav');
+const fs = require('fs');
 const Vcard = require('vcard');
 
 const config = require('./config.js');
+
 const xhr = new dav.transport.Basic(
   new dav.Credentials({
     username: config.owncloud.username,
@@ -38,9 +40,34 @@ const extractAddresses = account => {
   return addresses;
 };
 
-const printAddresses = addresses => {
-  console.log(addresses.join(','));
-};
+const generateSieverule = addresses => new Promise(resolve => {
+  let sieverule = `# rule:[lowprio]\nelsif anyof (`;
 
-connect().then(extractAddresses).then(printAddresses).catch(console.log);
+  for (const i in addresses) {
+    if (i < addresses.length - 1) {
+      sieverule += `not address :contains "From" "${addresses[i]}",\n    `;
+    } else {
+      sieverule += `not address :contains "From" "${addresses[i]}")\n`;
+    }
+  }
 
+  sieverule += `{\n    fileinto "${config.targetmailbox}"\n}`;
+
+  resolve(sieverule);
+});
+
+const writeRule = sieverule => new Promise((resolve, reject) => {
+  fs.writeFile(config.sievefile, sieverule, err => {
+    if (err) {
+      reject(err);
+    } else {
+      resolve();
+    }
+  });
+});
+
+connect()
+  .then(extractAddresses)
+  .then(generateSieverule)
+  .then(writeRule)
+  .catch(console.log);
